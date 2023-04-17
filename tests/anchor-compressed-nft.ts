@@ -15,7 +15,14 @@ import {
   createAllocTreeIx,
 } from "@solana/spl-account-compression"
 import { PROGRAM_ID as BUBBLEGUM_PROGRAM_ID } from "@metaplex-foundation/mpl-bubblegum"
+import {
+  Metaplex,
+  keypairIdentity,
+  CreateNftOutput,
+  TokenMetadataAuthorityMetadata,
+} from "@metaplex-foundation/js"
 import { assert } from "chai"
+import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata"
 
 describe("anchor-compressed-nft", () => {
   anchor.setProvider(anchor.AnchorProvider.env())
@@ -24,11 +31,22 @@ describe("anchor-compressed-nft", () => {
     .AnchorCompressedNft as Program<AnchorCompressedNft>
   const connection = program.provider.connection
   const wallet = anchor.workspace.AnchorCompressedNft.provider.wallet
+  const metaplex = Metaplex.make(connection).use(keypairIdentity(wallet.payer))
 
   const merkleTree = Keypair.generate()
 
-  const [treeAuthority, _bump] = PublicKey.findProgramAddressSync(
+  const [treeAuthority] = PublicKey.findProgramAddressSync(
     [merkleTree.publicKey.toBuffer()],
+    BUBBLEGUM_PROGRAM_ID
+  )
+
+  const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("AUTH")],
+    program.programId
+  )
+
+  const [bubblegumSigner] = PublicKey.findProgramAddressSync(
+    [Buffer.from("collection_cpi", "utf8")],
     BUBBLEGUM_PROGRAM_ID
   )
 
@@ -38,7 +56,28 @@ describe("anchor-compressed-nft", () => {
   }
   const canopyDepth = maxDepthSizePair.maxDepth - 3
 
+  const metadata = {
+    uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
+    name: "Solana Gold",
+    symbol: "GOLDSOL",
+  }
+
+  let collectionNft: CreateNftOutput
+
   before(async () => {
+    collectionNft = await metaplex.nfts().create({
+      uri: metadata.uri,
+      name: metadata.name,
+      sellerFeeBasisPoints: 0,
+      isCollection: true,
+    })
+
+    await metaplex.nfts().update({
+      nftOrSft: collectionNft.nft,
+      updateAuthority: wallet.payer,
+      newUpdateAuthority: pda,
+    })
+
     const allocTreeIx = await createAllocTreeIx(
       connection,
       merkleTree.publicKey,
@@ -60,20 +99,21 @@ describe("anchor-compressed-nft", () => {
     console.log("txSignature", txSignature)
   })
 
-  it("Is initialized!", async () => {
+  it("Create Tree", async () => {
     const tx = await program.methods
       .anchorCreateTree(
         maxDepthSizePair.maxDepth,
         maxDepthSizePair.maxBufferSize
       )
       .accounts({
+        pda: pda,
         merkleTree: merkleTree.publicKey,
         treeAuthority: treeAuthority,
         logWrapper: SPL_NOOP_PROGRAM_ID,
         bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
         compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
       })
-      .rpc({ skipPreflight: true, preflightCommitment: "recent" })
+      .rpc({ skipPreflight: true })
     console.log("Your transaction signature", tx)
 
     const treeAccount = await ConcurrentMerkleTreeAccount.fromAccountAddress(
@@ -92,5 +132,26 @@ describe("anchor-compressed-nft", () => {
     assert.strictEqual(treeAccount.getMaxDepth(), maxDepthSizePair.maxDepth)
     assert.isTrue(treeAccount.getAuthority().equals(treeAuthority))
     // assert.strictEqual(treeAccount.getAuthority(), treeAuthority)
+  })
+
+  it("Mint Compressed NFT", async () => {
+    const tx = await program.methods
+      .mintCompressedNft()
+      .accounts({
+        pda: pda,
+        merkleTree: merkleTree.publicKey,
+        treeAuthority: treeAuthority,
+        logWrapper: SPL_NOOP_PROGRAM_ID,
+        bubblegumSigner: bubblegumSigner,
+        bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
+        compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+
+        collectionMint: collectionNft.mintAddress,
+        collectionMetadata: collectionNft.metadataAddress,
+        editionAccount: collectionNft.masterEditionAddress,
+      })
+      .rpc()
+    console.log("Your transaction signature", tx)
   })
 })
