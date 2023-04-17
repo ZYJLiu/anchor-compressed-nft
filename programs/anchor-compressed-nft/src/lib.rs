@@ -38,7 +38,7 @@ pub mod anchor_compressed_nft {
                     tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
                     merkle_tree: ctx.accounts.merkle_tree.to_account_info().clone(),
                     payer: ctx.accounts.payer.to_account_info().clone(),
-                    tree_creator: ctx.accounts.pda.to_account_info().clone(),
+                    tree_creator: ctx.accounts.pda.to_account_info().clone(), // set creator as pda
                     log_wrapper: ctx.accounts.log_wrapper.to_account_info().clone(),
                     compression_program: ctx.accounts.compression_program.to_account_info().clone(),
                     system_program: ctx.accounts.system_program.to_account_info().clone(),
@@ -55,6 +55,7 @@ pub mod anchor_compressed_nft {
     pub fn mint_compressed_nft(ctx: Context<MintCompressedNft>) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[SEED.as_bytes(), &[*ctx.bumps.get("pda").unwrap()]]];
 
+        // use collection nft metadata as the metadata for the compressed nft
         let metadata_account = &ctx.accounts.collection_metadata;
 
         let metadata = MetadataArgs {
@@ -72,7 +73,7 @@ pub mod anchor_compressed_nft {
             uses: None,
             token_program_version: TokenProgramVersion::Original,
             creators: vec![Creator {
-                address: ctx.accounts.pda.key(),
+                address: ctx.accounts.pda.key(), // set creator as pda
                 verified: true,
                 share: 100,
             }],
@@ -87,12 +88,12 @@ pub mod anchor_compressed_nft {
                 leaf_delegate: ctx.accounts.payer.to_account_info(),
                 merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
                 payer: ctx.accounts.payer.to_account_info(),
-                tree_delegate: ctx.accounts.pda.to_account_info(), // not sure what this is
-                collection_authority: ctx.accounts.pda.to_account_info(),
+                tree_delegate: ctx.accounts.pda.to_account_info(), // tree delegate is pda, required as a signer
+                collection_authority: ctx.accounts.pda.to_account_info(), // collection authority is pda (nft metadata update authority)
                 collection_authority_record_pda: ctx.accounts.bubblegum_program.to_account_info(),
-                collection_mint: ctx.accounts.collection_mint.to_account_info(),
-                collection_metadata: ctx.accounts.collection_metadata.to_account_info(),
-                edition_account: ctx.accounts.edition_account.to_account_info(),
+                collection_mint: ctx.accounts.collection_mint.to_account_info(), // collection nft mint account
+                collection_metadata: ctx.accounts.collection_metadata.to_account_info(), // collection nft metadata account
+                edition_account: ctx.accounts.edition_account.to_account_info(), // collection nft master edition account
                 bubblegum_signer: ctx.accounts.bubblegum_signer.to_account_info(),
                 log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
                 compression_program: ctx.accounts.compression_program.to_account_info(),
