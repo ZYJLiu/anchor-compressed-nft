@@ -15,7 +15,7 @@ use mpl_bubblegum::{
 };
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("Hr6cWwxbAyB9CRbJ7wV4WrphzkY1oyQB5ix1uPJFHqtA");
 
 pub const SEED: &str = "AUTH";
 

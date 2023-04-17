@@ -19,7 +19,6 @@ import {
   Metaplex,
   keypairIdentity,
   CreateNftOutput,
-  TokenMetadataAuthorityMetadata,
 } from "@metaplex-foundation/js"
 import { assert } from "chai"
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata"
@@ -131,7 +130,6 @@ describe("anchor-compressed-nft", () => {
     )
     assert.strictEqual(treeAccount.getMaxDepth(), maxDepthSizePair.maxDepth)
     assert.isTrue(treeAccount.getAuthority().equals(treeAuthority))
-    // assert.strictEqual(treeAccount.getAuthority(), treeAuthority)
   })
 
   it("Mint Compressed NFT", async () => {
@@ -154,4 +152,36 @@ describe("anchor-compressed-nft", () => {
       .rpc()
     console.log("Your transaction signature", tx)
   })
+
+  // it("Mint Compressed NFT", async () => {
+  //   // Devnet
+  //   const tx = await program.methods
+  //     .mintCompressedNft()
+  //     .accounts({
+  //       pda: pda,
+  //       merkleTree: new PublicKey(
+  //         "FHuqtTczAMgBxaALej8S9ctsgLcCW7vyzf9KUmXheUE2"
+  //       ),
+  //       treeAuthority: new PublicKey(
+  //         "61jF1bUcAbHtG6eo7stecU4MdXFg7JuBkh8NijASNosN"
+  //       ),
+  //       logWrapper: SPL_NOOP_PROGRAM_ID,
+  //       bubblegumSigner: bubblegumSigner,
+  //       bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
+  //       compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+  //       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+
+  //       collectionMint: new PublicKey(
+  //         "AJR7jSzvv4pTp9x8LYi5sRzqsKeAp4br4S3PNSLaGQo3"
+  //       ),
+  //       collectionMetadata: new PublicKey(
+  //         "GUwsaB92iSgQnQToLkQC5jwFjyL51ftSGuYoct1bfLFN"
+  //       ),
+  //       editionAccount: new PublicKey(
+  //         "8FMwvAVQq94dXDm9tXonwj2xZRRVoHc1PXxcUVqR6A14"
+  //       ),
+  //     })
+  //     .rpc()
+  //   console.log("Your transaction signature", tx)
+  // })
 })
