@@ -5,8 +5,8 @@ use anchor_spl::{
 };
 use mpl_bubblegum::{
     cpi::{
-        accounts::{CreateTree, MintToCollectionV1},
-        create_tree, mint_to_collection_v1,
+        accounts::{Burn, CreateTree, MintToCollectionV1},
+        burn, create_tree, mint_to_collection_v1,
     },
     program::Bubblegum,
     state::metaplex_adapter::{
@@ -15,7 +15,7 @@ use mpl_bubblegum::{
 };
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-declare_id!("Hr6cWwxbAyB9CRbJ7wV4WrphzkY1oyQB5ix1uPJFHqtA");
+declare_id!("CdHNeGaBzr8WEMzcBphX4iJNu9Sa5z2e43UKGiG8GYSt");
 
 pub const SEED: &str = "AUTH";
 
@@ -107,6 +107,34 @@ pub mod anchor_compressed_nft {
 
         Ok(())
     }
+
+    // Not working idk why
+    // Error Code: LeafAuthorityMustSign. Error Number: 6025. Error Message: This transaction must be signed by either the leaf owner or leaf delegate.'
+    pub fn burn_compressed_nft(
+        ctx: Context<BurnCompressedNft>,
+        root: [u8; 32],
+        data_hash: [u8; 32],
+        creator_hash: [u8; 32],
+        nonce: u64,
+        index: u32,
+    ) -> Result<()> {
+        let cpi_ctx = CpiContext::new(
+            ctx.accounts.bubblegum_program.to_account_info().clone(),
+            Burn {
+                tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
+                leaf_owner: ctx.accounts.payer.to_account_info().clone(),
+                leaf_delegate: ctx.accounts.payer.to_account_info(),
+                merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
+                log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
+                compression_program: ctx.accounts.compression_program.to_account_info(),
+                system_program: ctx.accounts.system_program.to_account_info(),
+            },
+        );
+
+        burn(cpi_ctx, root, data_hash, creator_hash, nonce, index)?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -182,4 +210,28 @@ pub struct MintCompressedNft<'info> {
     pub collection_metadata: Account<'info, MetadataAccount>,
     /// CHECK:
     pub edition_account: UncheckedAccount<'info>,
+}
+
+#[derive(Accounts)]
+pub struct BurnCompressedNft<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    /// CHECK:
+    #[account(
+        mut,
+        seeds = [merkle_tree.key().as_ref()],
+        bump,
+        seeds::program = bubblegum_program.key()
+    )]
+    pub tree_authority: UncheckedAccount<'info>,
+
+    /// CHECK:
+    #[account(mut)]
+    pub merkle_tree: UncheckedAccount<'info>,
+
+    pub log_wrapper: Program<'info, Noop>,
+    pub compression_program: Program<'info, SplAccountCompression>,
+    pub bubblegum_program: Program<'info, Bubblegum>,
+    pub system_program: Program<'info, System>,
 }

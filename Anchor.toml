@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
-anchor_compressed_nft = "Hr6cWwxbAyB9CRbJ7wV4WrphzkY1oyQB5ix1uPJFHqtA"
+[programs.devnet]
+anchor_compressed_nft = "CdHNeGaBzr8WEMzcBphX4iJNu9Sa5z2e43UKGiG8GYSt"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/johnliu/.config/solana/id.json"
 
 [scripts]
