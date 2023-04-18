@@ -78,7 +78,8 @@ dotenv.config();
 
   // set the asset to test with
   // const assetId = assetIdTestAddress;
-  const assetId = assetIdUserAddress;
+  // const assetId = assetIdUserAddress;
+  const assetId = new PublicKey("55zmgiippC9KCxk5sv9jKRC8LzvrTnMCNVBK9t1AL3j9");
 
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
@@ -206,7 +207,7 @@ dotenv.config();
     .slice(0, assetProof.proof.length - (!!canopyDepth ? canopyDepth : 0));
 
   //
-  // console.log(proofPath);
+  console.log("PROOF: ", proofPath);
 
   // create the NFT transfer instruction (via the Bubblegum package)
   const transferIx = createTransferInstruction(

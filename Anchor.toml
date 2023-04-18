@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-anchor_compressed_nft = "CdHNeGaBzr8WEMzcBphX4iJNu9Sa5z2e43UKGiG8GYSt"
+anchor_compressed_nft = "AYorEHWdAA7SLzWgQfuv6kypdzriqCeG7GrGifa7c4Kp"
 
 [registry]
 url = "https://api.apr.dev"

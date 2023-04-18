@@ -137,6 +137,16 @@ export type AnchorCompressedNft = {
           isSigner: true;
         },
         {
+          name: "leafOwner";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "leafDelegate";
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: "treeAuthority";
           isMut: true;
           isSigner: false;
@@ -200,7 +210,12 @@ export type AnchorCompressedNft = {
       name: "transferCompressedNft";
       accounts: [
         {
-          name: "payer";
+          name: "leafOwner";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "leafDelegate";
           isMut: true;
           isSigner: true;
         },
@@ -411,6 +426,16 @@ export const IDL: AnchorCompressedNft = {
           isSigner: true,
         },
         {
+          name: "leafOwner",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "leafDelegate",
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: "treeAuthority",
           isMut: true,
           isSigner: false,
@@ -474,7 +499,12 @@ export const IDL: AnchorCompressedNft = {
       name: "transferCompressedNft",
       accounts: [
         {
-          name: "payer",
+          name: "leafOwner",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "leafDelegate",
           isMut: true,
           isSigner: true,
         },

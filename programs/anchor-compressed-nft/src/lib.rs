@@ -15,7 +15,7 @@ use mpl_bubblegum::{
 };
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-declare_id!("CdHNeGaBzr8WEMzcBphX4iJNu9Sa5z2e43UKGiG8GYSt");
+declare_id!("AYorEHWdAA7SLzWgQfuv6kypdzriqCeG7GrGifa7c4Kp");
 
 pub const SEED: &str = "AUTH";
 
@@ -33,15 +33,15 @@ pub mod anchor_compressed_nft {
 
         create_tree(
             CpiContext::new_with_signer(
-                ctx.accounts.bubblegum_program.to_account_info().clone(),
+                ctx.accounts.bubblegum_program.to_account_info(),
                 CreateTree {
-                    tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
-                    merkle_tree: ctx.accounts.merkle_tree.to_account_info().clone(),
-                    payer: ctx.accounts.payer.to_account_info().clone(),
-                    tree_creator: ctx.accounts.pda.to_account_info().clone(), // set creator as pda
-                    log_wrapper: ctx.accounts.log_wrapper.to_account_info().clone(),
-                    compression_program: ctx.accounts.compression_program.to_account_info().clone(),
-                    system_program: ctx.accounts.system_program.to_account_info().clone(),
+                    tree_authority: ctx.accounts.tree_authority.to_account_info(),
+                    merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
+                    payer: ctx.accounts.payer.to_account_info(),
+                    tree_creator: ctx.accounts.pda.to_account_info(), // set creator as pda
+                    log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
+                    compression_program: ctx.accounts.compression_program.to_account_info(),
+                    system_program: ctx.accounts.system_program.to_account_info(),
                 },
                 signer_seeds,
             ),
@@ -59,9 +59,9 @@ pub mod anchor_compressed_nft {
         let metadata_account = &ctx.accounts.collection_metadata;
 
         let metadata = MetadataArgs {
-            name: metadata_account.data.name.clone().to_string(),
-            symbol: metadata_account.data.symbol.clone().to_string(),
-            uri: metadata_account.data.uri.clone().to_string(),
+            name: metadata_account.data.name.to_string(),
+            symbol: metadata_account.data.symbol.to_string(),
+            uri: metadata_account.data.uri.to_string(),
             collection: Some(Collection {
                 key: ctx.accounts.collection_mint.key(),
                 verified: false,
@@ -81,10 +81,10 @@ pub mod anchor_compressed_nft {
         };
 
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.bubblegum_program.to_account_info().clone(),
+            ctx.accounts.bubblegum_program.to_account_info(),
             MintToCollectionV1 {
-                tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
-                leaf_owner: ctx.accounts.payer.to_account_info().clone(),
+                tree_authority: ctx.accounts.tree_authority.to_account_info(),
+                leaf_owner: ctx.accounts.payer.to_account_info(),
                 leaf_delegate: ctx.accounts.payer.to_account_info(),
                 merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
                 payer: ctx.accounts.payer.to_account_info(),
@@ -119,11 +119,11 @@ pub mod anchor_compressed_nft {
         index: u32,
     ) -> Result<()> {
         let cpi_ctx = CpiContext::new(
-            ctx.accounts.bubblegum_program.to_account_info().clone(),
+            ctx.accounts.bubblegum_program.to_account_info(),
             Burn {
-                tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
-                leaf_owner: ctx.accounts.payer.to_account_info().clone(),
-                leaf_delegate: ctx.accounts.payer.to_account_info(),
+                tree_authority: ctx.accounts.tree_authority.to_account_info(),
+                leaf_owner: ctx.accounts.leaf_owner.to_account_info(),
+                leaf_delegate: ctx.accounts.leaf_delegate.to_account_info(),
                 merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
                 log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
                 compression_program: ctx.accounts.compression_program.to_account_info(),
@@ -136,27 +136,31 @@ pub mod anchor_compressed_nft {
         Ok(())
     }
 
-    pub fn transfer_compressed_nft(
-        ctx: Context<TransferCompressedNft>,
+    // Error Code: LeafAuthorityMustSign. Error Number: 6025. Error Message: This transaction must be signed by either the leaf owner or leaf delegate.'
+    pub fn transfer_compressed_nft<'a, 'b, 'c, 'info>(
+        ctx: Context<'a, 'b, 'c, 'info, TransferCompressedNft<'info>>,
         root: [u8; 32],
         data_hash: [u8; 32],
         creator_hash: [u8; 32],
         nonce: u64,
         index: u32,
     ) -> Result<()> {
+        msg!("remaining_accounts: {:?}", ctx.remaining_accounts.to_vec());
+
         let cpi_ctx = CpiContext::new(
-            ctx.accounts.bubblegum_program.to_account_info().clone(),
+            ctx.accounts.bubblegum_program.to_account_info(),
             Transfer {
-                tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
-                leaf_owner: ctx.accounts.payer.to_account_info().clone(),
-                leaf_delegate: ctx.accounts.payer.to_account_info(),
+                tree_authority: ctx.accounts.tree_authority.to_account_info(),
+                leaf_owner: ctx.accounts.leaf_owner.to_account_info(),
+                leaf_delegate: ctx.accounts.leaf_delegate.to_account_info(),
                 new_leaf_owner: ctx.accounts.new_leaf_owner.to_account_info(),
                 merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
                 log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
                 compression_program: ctx.accounts.compression_program.to_account_info(),
                 system_program: ctx.accounts.system_program.to_account_info(),
             },
-        );
+        )
+        .with_remaining_accounts(ctx.remaining_accounts.to_vec());
 
         transfer(cpi_ctx, root, data_hash, creator_hash, nonce, index)?;
 
@@ -244,6 +248,12 @@ pub struct BurnCompressedNft<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
+    #[account(mut)]
+    pub leaf_owner: Signer<'info>,
+
+    #[account(mut)]
+    pub leaf_delegate: Signer<'info>,
+
     /// CHECK:
     #[account(
         mut,
@@ -266,7 +276,10 @@ pub struct BurnCompressedNft<'info> {
 #[derive(Accounts)]
 pub struct TransferCompressedNft<'info> {
     #[account(mut)]
-    pub payer: Signer<'info>,
+    pub leaf_owner: Signer<'info>,
+
+    #[account(mut)]
+    pub leaf_delegate: Signer<'info>,
 
     /// CHECK:
     #[account(
