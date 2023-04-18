@@ -136,9 +136,10 @@ let initBalance: number, balance: number;
   const index = asset.compression.leaf_id;
 
   const tx = await program.methods
-    .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
+    .transferCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
     .accounts({
       payer: payer.publicKey,
+      newLeafOwner: payer.publicKey,
       merkleTree: new PublicKey("DKfVW5sjaUnC5Q5Fu6zLzPfkHn7xYXDzCu2EBScUfsLQ"),
       treeAuthority: new PublicKey("DwpXS8BQUTyeSX6ftrh9HN8SRiBVkoQXGnro7KnQNR4s"),
       logWrapper: SPL_NOOP_PROGRAM_ID,
@@ -147,6 +148,19 @@ let initBalance: number, balance: number;
     })
     .rpc();
   console.log("Your transaction signature", tx);
+
+  // const tx = await program.methods
+  //   .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
+  //   .accounts({
+  //     payer: payer.publicKey,
+  //     merkleTree: new PublicKey("DKfVW5sjaUnC5Q5Fu6zLzPfkHn7xYXDzCu2EBScUfsLQ"),
+  //     treeAuthority: new PublicKey("DwpXS8BQUTyeSX6ftrh9HN8SRiBVkoQXGnro7KnQNR4s"),
+  //     logWrapper: SPL_NOOP_PROGRAM_ID,
+  //     bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
+  //     compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+  //   })
+  //   .rpc();
+  // console.log("Your transaction signature", tx);
 
   await connection
     .getAssetsByOwner({

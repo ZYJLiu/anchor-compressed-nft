@@ -5,8 +5,8 @@ use anchor_spl::{
 };
 use mpl_bubblegum::{
     cpi::{
-        accounts::{Burn, CreateTree, MintToCollectionV1},
-        burn, create_tree, mint_to_collection_v1,
+        accounts::{Burn, CreateTree, MintToCollectionV1, Transfer},
+        burn, create_tree, mint_to_collection_v1, transfer,
     },
     program::Bubblegum,
     state::metaplex_adapter::{
@@ -108,7 +108,7 @@ pub mod anchor_compressed_nft {
         Ok(())
     }
 
-    // Not working idk why
+    // Not working idk why even though payer is signer
     // Error Code: LeafAuthorityMustSign. Error Number: 6025. Error Message: This transaction must be signed by either the leaf owner or leaf delegate.'
     pub fn burn_compressed_nft(
         ctx: Context<BurnCompressedNft>,
@@ -132,6 +132,33 @@ pub mod anchor_compressed_nft {
         );
 
         burn(cpi_ctx, root, data_hash, creator_hash, nonce, index)?;
+
+        Ok(())
+    }
+
+    pub fn transfer_compressed_nft(
+        ctx: Context<TransferCompressedNft>,
+        root: [u8; 32],
+        data_hash: [u8; 32],
+        creator_hash: [u8; 32],
+        nonce: u64,
+        index: u32,
+    ) -> Result<()> {
+        let cpi_ctx = CpiContext::new(
+            ctx.accounts.bubblegum_program.to_account_info().clone(),
+            Transfer {
+                tree_authority: ctx.accounts.tree_authority.to_account_info().clone(),
+                leaf_owner: ctx.accounts.payer.to_account_info().clone(),
+                leaf_delegate: ctx.accounts.payer.to_account_info(),
+                new_leaf_owner: ctx.accounts.new_leaf_owner.to_account_info(),
+                merkle_tree: ctx.accounts.merkle_tree.to_account_info(),
+                log_wrapper: ctx.accounts.log_wrapper.to_account_info(),
+                compression_program: ctx.accounts.compression_program.to_account_info(),
+                system_program: ctx.accounts.system_program.to_account_info(),
+            },
+        );
+
+        transfer(cpi_ctx, root, data_hash, creator_hash, nonce, index)?;
 
         Ok(())
     }
@@ -229,6 +256,34 @@ pub struct BurnCompressedNft<'info> {
     /// CHECK:
     #[account(mut)]
     pub merkle_tree: UncheckedAccount<'info>,
+
+    pub log_wrapper: Program<'info, Noop>,
+    pub compression_program: Program<'info, SplAccountCompression>,
+    pub bubblegum_program: Program<'info, Bubblegum>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct TransferCompressedNft<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    /// CHECK:
+    #[account(
+        mut,
+        seeds = [merkle_tree.key().as_ref()],
+        bump,
+        seeds::program = bubblegum_program.key()
+    )]
+    pub tree_authority: UncheckedAccount<'info>,
+
+    /// CHECK:
+    #[account(mut)]
+    pub merkle_tree: UncheckedAccount<'info>,
+
+    /// CHECK:
+    #[account(mut)]
+    pub new_leaf_owner: UncheckedAccount<'info>,
 
     pub log_wrapper: Program<'info, Noop>,
     pub compression_program: Program<'info, SplAccountCompression>,
