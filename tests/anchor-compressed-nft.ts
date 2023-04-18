@@ -64,10 +64,10 @@ describe("anchor-compressed-nft", () => {
   )
 
   const maxDepthSizePair: ValidDepthSizePair = {
-    maxDepth: 3,
+    maxDepth: 5,
     maxBufferSize: 8,
   }
-  const canopyDepth = maxDepthSizePair.maxDepth
+  const canopyDepth = maxDepthSizePair.maxDepth - 5
 
   const metadata = {
     uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",

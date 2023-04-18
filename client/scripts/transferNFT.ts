@@ -79,7 +79,7 @@ dotenv.config();
   // set the asset to test with
   // const assetId = assetIdTestAddress;
   // const assetId = assetIdUserAddress;
-  const assetId = new PublicKey("55zmgiippC9KCxk5sv9jKRC8LzvrTnMCNVBK9t1AL3j9");
+  const assetId = new PublicKey("6nVNwqjfj54j75uZ3vES9ZVqKqFqZnKgNSiM1m9dWWWn");
 
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////

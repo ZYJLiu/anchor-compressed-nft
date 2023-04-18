@@ -1,11 +1,19 @@
 //  yarn demo ./scripts/anchor.ts
-import { AccountMeta, Keypair, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import {
+  AccountMeta,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  clusterApiUrl,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 
 import { Program, AnchorProvider, Idl, setProvider, BN } from "@project-serum/anchor";
 import { AnchorCompressedNft, IDL } from "@/utils/anchor_compressed_nft";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import {
   ConcurrentMerkleTreeAccount,
+  MerkleTree,
   MerkleTreeProof,
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
@@ -107,14 +115,15 @@ let initBalance: number, balance: number;
   //   .rpc();
   // console.log("Your transaction signature", tx);
 
-  const assetId = new PublicKey("55zmgiippC9KCxk5sv9jKRC8LzvrTnMCNVBK9t1AL3j9");
+  const assetId = new PublicKey("6nVNwqjfj54j75uZ3vES9ZVqKqFqZnKgNSiM1m9dWWWn");
   const asset = await connection.getAsset(assetId);
-  console.log("asset:", asset);
   const assetProof = await connection.getAssetProof(assetId);
   const treeAddress = new PublicKey(asset.compression.tree);
   const treeAccount = await ConcurrentMerkleTreeAccount.fromAccountAddress(connection, treeAddress);
   const treeAuthority = treeAccount.getAuthority();
   const canopyDepth = treeAccount.getCanopyDepth();
+
+  console.log("canopyDepth", canopyDepth);
   const proofPath: AccountMeta[] = assetProof.proof
     .map((node: string) => ({
       pubkey: new PublicKey(node),
@@ -123,7 +132,27 @@ let initBalance: number, balance: number;
     }))
     .slice(0, assetProof.proof.length - (!!canopyDepth ? canopyDepth : 0));
 
-  console.log("proof:", proofPath);
+  console.log(proofPath);
+
+  const merkleTreeProof: MerkleTreeProof = {
+    leafIndex: asset.compression.leaf_id,
+    leaf: new PublicKey(assetProof.leaf).toBuffer(),
+    root: new PublicKey(assetProof.root).toBuffer(),
+    proof: assetProof.proof.map((node: string) => new PublicKey(node).toBuffer()),
+  };
+
+  const currentRoot = treeAccount.getCurrentRoot();
+  const rpcRoot = new PublicKey(assetProof.root).toBuffer();
+
+  console.log(
+    "Is RPC provided proof/root valid:",
+    MerkleTree.verify(rpcRoot, merkleTreeProof, false),
+  );
+
+  console.log(
+    "Does the current on-chain root match RPC provided root:",
+    new PublicKey(currentRoot).toBase58() === new PublicKey(rpcRoot).toBase58(),
+  );
 
   const root = [...new PublicKey(assetProof.root.trim()).toBytes()];
   const dataHash = [...new PublicKey(asset.compression.data_hash.trim()).toBytes()];
@@ -131,22 +160,23 @@ let initBalance: number, balance: number;
   const nonce = asset.compression.leaf_id;
   const index = asset.compression.leaf_id;
 
-  // const tx = await program.methods
-  //   .transferCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
-  //   .accounts({
-  //     leafOwner: payer.publicKey,
-  //     leafDelegate: payer.publicKey,
-  //     newLeafOwner: payer.publicKey,
-  //     merkleTree: treeAddress,
-  //     treeAuthority: treeAuthority,
-  //     logWrapper: SPL_NOOP_PROGRAM_ID,
-  //     bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
-  //     compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
-  //   })
-  //   .remainingAccounts(proofPath)
-  //   .transaction();
-  // console.log("Your transaction signature", JSON.stringify(tx, null, 2));
+  const tx = await program.methods
+    .transferCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
+    .accounts({
+      leafOwner: payer.publicKey,
+      leafDelegate: payer.publicKey,
+      newLeafOwner: payer.publicKey,
+      merkleTree: treeAddress,
+      treeAuthority: treeAuthority,
+      logWrapper: SPL_NOOP_PROGRAM_ID,
+      bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
+      compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+    })
+    .remainingAccounts(proofPath)
+    .transaction();
+  console.log("Your transaction signature", JSON.stringify(tx, null, 2));
 
+  // console.log("PAYER: ", payer.publicKey.toBase58());
   // const tx = await program.methods
   //   .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
   //   .accounts({
@@ -159,12 +189,17 @@ let initBalance: number, balance: number;
   //     bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
   //     compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   //   })
+  //   // .signers([payer])
   //   .remainingAccounts(proofPath)
-  //   .transaction();
+  //   // .transaction();
+  //   .rpc();
   // console.log("Your transaction signature", JSON.stringify(tx, null, 2));
 
-  // const txSig = await connection.sendTransaction(tx, [payer]);
-  // console.log(txSig);
+  // send the transaction
+  const txSignature = await sendAndConfirmTransaction(connection, tx, [payer], {
+    commitment: "confirmed",
+  });
+  console.log(txSignature);
 
   await connection
     .getAssetsByOwner({
@@ -178,9 +213,9 @@ let initBalance: number, balance: number;
         // only show compressed nft assets
         if (!asset.compression.compressed) return;
 
-        const targetAddress = "Hh6z7WukNgvWawMe3YYJbsPQ12pYxhMvBBvDSj91uTVm";
+        const treeAuthority = "HV4wdPc9ncpjditqLewyPJ8DKfd6GQMJNYBLoVBiC8J9";
         const hasTargetAddress = asset.authorities.some(
-          authority => authority.address === targetAddress,
+          authority => authority.address === treeAuthority,
         );
 
         if (!hasTargetAddress) return;

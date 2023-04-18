@@ -108,7 +108,7 @@ pub mod anchor_compressed_nft {
         Ok(())
     }
 
-    // Not working idk why even though payer is signer
+    // Not working idk why even though leaf owner is signer
     // Error Code: LeafAuthorityMustSign. Error Number: 6025. Error Message: This transaction must be signed by either the leaf owner or leaf delegate.'
     pub fn burn_compressed_nft(
         ctx: Context<BurnCompressedNft>,
@@ -136,6 +136,8 @@ pub mod anchor_compressed_nft {
         Ok(())
     }
 
+    // Tried including "proof" in remaining accounts, but still not working
+    // And changed from payer to explicitly leaf owner/ leaf delegate
     // Error Code: LeafAuthorityMustSign. Error Number: 6025. Error Message: This transaction must be signed by either the leaf owner or leaf delegate.'
     pub fn transfer_compressed_nft<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, TransferCompressedNft<'info>>,
@@ -245,9 +247,6 @@ pub struct MintCompressedNft<'info> {
 
 #[derive(Accounts)]
 pub struct BurnCompressedNft<'info> {
-    #[account(mut)]
-    pub payer: Signer<'info>,
-
     #[account(mut)]
     pub leaf_owner: Signer<'info>,
 
