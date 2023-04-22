@@ -167,7 +167,64 @@ pub mod anchor_compressed_nft {
 
         // transfer(cpi_ctx, root, data_hash, creator_hash, nonce, index)?;
 
-        let mut accounts: Vec<solana_program::instruction::AccountMeta> = vec![
+        // let mut accounts: Vec<solana_program::instruction::AccountMeta> = vec![
+        //     AccountMeta::new_readonly(ctx.accounts.tree_authority.key(), false),
+        //     AccountMeta::new_readonly(ctx.accounts.leaf_owner.key(), true),
+        //     AccountMeta::new_readonly(ctx.accounts.leaf_delegate.key(), false),
+        //     AccountMeta::new_readonly(ctx.accounts.new_leaf_owner.key(), false),
+        //     AccountMeta::new(ctx.accounts.merkle_tree.key(), false),
+        //     AccountMeta::new_readonly(ctx.accounts.log_wrapper.key(), false),
+        //     AccountMeta::new_readonly(ctx.accounts.compression_program.key(), false),
+        //     AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
+        // ];
+
+        // let transfer_discriminator: [u8; 8] = [163, 52, 200, 231, 140, 3, 69, 186];
+
+        // let mut data: Vec<u8> = vec![];
+        // data.extend(transfer_discriminator);
+        // data.extend(root);
+        // data.extend(data_hash);
+        // data.extend(creator_hash);
+        // data.extend(nonce.to_le_bytes());
+        // data.extend(index.to_le_bytes());
+
+        // let mut account_infos: Vec<AccountInfo> = vec![
+        //     ctx.accounts.tree_authority.to_account_info(),
+        //     ctx.accounts.leaf_owner.to_account_info(),
+        //     ctx.accounts.leaf_delegate.to_account_info(),
+        //     ctx.accounts.new_leaf_owner.to_account_info(),
+        //     ctx.accounts.merkle_tree.to_account_info(),
+        //     ctx.accounts.log_wrapper.to_account_info(),
+        //     ctx.accounts.compression_program.to_account_info(),
+        //     ctx.accounts.system_program.to_account_info(),
+        // ];
+
+        // // add "accounts" (hashes) that make up the merkle proof
+        // for acc in ctx.remaining_accounts.iter() {
+        //     accounts.push(AccountMeta::new_readonly(acc.key(), false));
+        //     account_infos.push(acc.to_account_info());
+        // }
+
+        // msg!("manual cpi call");
+        // let instruction = solana_program::instruction::Instruction {
+        //     program_id: ctx.accounts.bubblegum_program.key(),
+        //     accounts,
+        //     data,
+        // };
+
+        // let result = solana_program::program::invoke(&instruction, &account_infos[..]);
+
+        // match result {
+        //     Ok(_) => {}
+        //     Err(error) => {}
+        // }
+
+        let remaining_accounts_len = ctx.remaining_accounts.len();
+        let mut accounts = Vec::with_capacity(
+            8 // space for the 8 AccountMetas that are always included in (below)
+            + remaining_accounts_len,
+        );
+        accounts.extend(vec![
             AccountMeta::new_readonly(ctx.accounts.tree_authority.key(), false),
             AccountMeta::new_readonly(ctx.accounts.leaf_owner.key(), true),
             AccountMeta::new_readonly(ctx.accounts.leaf_delegate.key(), false),
@@ -176,11 +233,18 @@ pub mod anchor_compressed_nft {
             AccountMeta::new_readonly(ctx.accounts.log_wrapper.key(), false),
             AccountMeta::new_readonly(ctx.accounts.compression_program.key(), false),
             AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
-        ];
+        ]);
 
         let transfer_discriminator: [u8; 8] = [163, 52, 200, 231, 140, 3, 69, 186];
 
-        let mut data: Vec<u8> = vec![];
+        let mut data = Vec::with_capacity(
+            8 // The length of transfer_discriminator,
+            + root.len()
+            + data_hash.len()
+            + creator_hash.len()
+            + 8 // The length of the nonce
+            + 8, // The length of the index
+        );
         data.extend(transfer_discriminator);
         data.extend(root);
         data.extend(data_hash);
@@ -188,7 +252,11 @@ pub mod anchor_compressed_nft {
         data.extend(nonce.to_le_bytes());
         data.extend(index.to_le_bytes());
 
-        let mut account_infos: Vec<AccountInfo> = vec![
+        let mut account_infos = Vec::with_capacity(
+            8 // space for the 8 AccountInfos that are always included (below)
+            + remaining_accounts_len,
+        );
+        account_infos.extend(vec![
             ctx.accounts.tree_authority.to_account_info(),
             ctx.accounts.leaf_owner.to_account_info(),
             ctx.accounts.leaf_delegate.to_account_info(),
@@ -197,26 +265,26 @@ pub mod anchor_compressed_nft {
             ctx.accounts.log_wrapper.to_account_info(),
             ctx.accounts.compression_program.to_account_info(),
             ctx.accounts.system_program.to_account_info(),
-        ];
+        ]);
 
-        // add "accounts" (hashes) that make up the merkle proof
+        // Add "accounts" (hashes) that make up the merkle proof from the remaining accounts.
         for acc in ctx.remaining_accounts.iter() {
             accounts.push(AccountMeta::new_readonly(acc.key(), false));
             account_infos.push(acc.to_account_info());
         }
 
-        msg!("manual cpi call");
         let instruction = solana_program::instruction::Instruction {
             program_id: ctx.accounts.bubblegum_program.key(),
             accounts,
             data,
         };
 
+        msg!("manual cpi call to bubblegum program transfer instruction");
         let result = solana_program::program::invoke(&instruction, &account_infos[..]);
 
         match result {
             Ok(_) => {}
-            Err(error) => {}
+            Err(_error) => {}
         }
 
         Ok(())
