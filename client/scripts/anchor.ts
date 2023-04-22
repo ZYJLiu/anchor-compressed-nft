@@ -115,7 +115,7 @@ let initBalance: number, balance: number;
   //   .rpc();
   // console.log("Your transaction signature", tx);
 
-  const assetId = new PublicKey("6nVNwqjfj54j75uZ3vES9ZVqKqFqZnKgNSiM1m9dWWWn");
+  const assetId = new PublicKey("t5dV3UpBf565FNuGL2KSgkAi6no7S4PApVgEKUcqLdW");
   const asset = await connection.getAsset(assetId);
   const assetProof = await connection.getAssetProof(assetId);
   const treeAddress = new PublicKey(asset.compression.tree);
@@ -213,7 +213,7 @@ let initBalance: number, balance: number;
         // only show compressed nft assets
         if (!asset.compression.compressed) return;
 
-        const treeAuthority = "HV4wdPc9ncpjditqLewyPJ8DKfd6GQMJNYBLoVBiC8J9";
+        const treeAuthority = "5497iJjYQWkZGJKeUg4vLJ6Umc4cUzsQYrZytyGrgHoM";
         const hasTargetAddress = asset.authorities.some(
           authority => authority.address === treeAuthority,
         );

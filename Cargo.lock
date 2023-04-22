@@ -171,6 +171,7 @@ dependencies = [
  "anchor-spl",
  "mpl-bubblegum",
  "mpl-token-metadata",
+ "solana-program",
  "spl-account-compression",
 ]
 
