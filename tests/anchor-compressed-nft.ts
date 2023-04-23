@@ -70,9 +70,9 @@ describe("anchor-compressed-nft", () => {
   const canopyDepth = maxDepthSizePair.maxDepth - 5
 
   const metadata = {
-    uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
-    name: "Solana Gold",
-    symbol: "GOLDSOL",
+    uri: "https://arweave.net/h19GMcMz7RLDY7kAHGWeWolHTmO83mLLMNPzEkF32BQ",
+    name: "NAME",
+    symbol: "SYMBOL",
   }
 
   let collectionNft: CreateNftOutput

@@ -92,9 +92,9 @@ async function postImpl(
     .accounts({
       payer: account,
       pda: pda,
-      merkleTree: new PublicKey("9G2SFi7ZjsJeQrkuk1PFy3TJjGszvetSZEKmV3cspvCU"),
+      merkleTree: new PublicKey("3qtDptmCQ8LUNBifHNWMLsQ8ueG4hwSU6deUj5b9CV8y"),
       treeAuthority: new PublicKey(
-        "3Es2aBsdLkbQgXGgwpaQrBeaGt84C7mXbnY498Bqo4um"
+        "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"
       ),
       logWrapper: SPL_NOOP_PROGRAM_ID,
       bubblegumSigner: bubblegumSigner,
@@ -103,13 +103,13 @@ async function postImpl(
       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
 
       collectionMint: new PublicKey(
-        "5WJFXPXXoa3RYbuJLNCUSxMukhKe6rovSGomgbhDf5k7"
+        "6HSCi45SUfUCFX6vnyKCA5fwBEgnUZV2ALuUrPXRBg9q"
       ),
       collectionMetadata: new PublicKey(
-        "8CTEoTU8GsXC8ywWDT5Q2jPmTeWZXDhHkJCtoJ5eSEMG"
+        "EcCsMe7MP6XCfFPcuMDB1jyVX3ibW8vtQaS6fQeZfAqB"
       ),
       editionAccount: new PublicKey(
-        "2M3AxZcYHkG7xFPZozTX6JTwW8WSSGvpgEqDQAzz57KL"
+        "3LUjNV2MGBMbUqgtiyFpmQE1N6RbSkHaCHH5Jtf6b8Rb"
       ),
     })
     .instruction()

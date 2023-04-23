@@ -9,6 +9,7 @@ import {
   AnchorCompressedNft,
 } from "../idl/anchor_compressed_nft"
 import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js"
+import { WrapperConnection } from "../ReadApi/WrapperConnection"
 
 const MockWallet = {
   signTransaction: () => Promise.reject(),
@@ -16,7 +17,10 @@ const MockWallet = {
   publicKey: Keypair.generate().publicKey,
 }
 
-export const connection = new Connection(clusterApiUrl("devnet"))
+export const connection = new WrapperConnection(
+  process.env.NEXT_PUBLIC_RPC_URL!,
+  "confirmed"
+)
 
 const provider = new AnchorProvider(connection, MockWallet, {})
 setProvider(provider)

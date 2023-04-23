@@ -1,9 +1,10 @@
-import { Flex, useDisclosure, Button } from "@chakra-ui/react"
+import { Flex } from "@chakra-ui/react"
+import DisplayCnft from "../components/DisplayCnft"
 
 export default function Home() {
   return (
     <Flex justifyContent="center">
-      <>Todo: Fetch Compressed NFTs</>
+      <DisplayCnft />
     </Flex>
   )
 }
