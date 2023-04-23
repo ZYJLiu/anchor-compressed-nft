@@ -23,6 +23,7 @@ import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mp
 
 // import custom helpers for demos
 import {
+  explorerURL,
   loadKeypairFromFile,
   loadOrGenerateKeypair,
   numberFormatter,
@@ -176,74 +177,79 @@ let initBalance: number, balance: number;
     .transaction();
   console.log("Your transaction signature", JSON.stringify(tx, null, 2));
 
-  // console.log("PAYER: ", payer.publicKey.toBase58());
-  // const tx = await program.methods
-  //   .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
-  //   .accounts({
-  //     payer: payer.publicKey,
-  //     leafOwner: payer.publicKey,
-  //     leafDelegate: payer.publicKey,
-  //     merkleTree: treeAddress,
-  //     treeAuthority: treeAuthority,
-  //     logWrapper: SPL_NOOP_PROGRAM_ID,
-  //     bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
-  //     compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
-  //   })
-  //   // .signers([payer])
-  //   .remainingAccounts(proofPath)
-  //   // .transaction();
-  //   .rpc();
-  // console.log("Your transaction signature", JSON.stringify(tx, null, 2));
-
   // send the transaction
   const txSignature = await sendAndConfirmTransaction(connection, tx, [payer], {
     commitment: "confirmed",
   });
-  console.log(txSignature);
+  console.log(explorerURL({ txSignature }));
 
-  await connection
-    .getAssetsByOwner({
-      ownerAddress: payer.publicKey.toBase58(),
+  console.log("PAYER: ", payer.publicKey.toBase58());
+  const tx2 = await program.methods
+    .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
+    .accounts({
+      payer: payer.publicKey,
+      leafOwner: payer.publicKey,
+      leafDelegate: payer.publicKey,
+      merkleTree: treeAddress,
+      treeAuthority: treeAuthority,
+      logWrapper: SPL_NOOP_PROGRAM_ID,
+      bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
+      compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
     })
-    .then(res => {
-      console.log("Total assets returned:", res.total);
+    .signers([payer])
+    .remainingAccounts(proofPath)
+    .transaction();
+  // .rpc();
 
-      // loop over each of the asset items in the collection
-      res.items?.map(asset => {
-        // only show compressed nft assets
-        if (!asset.compression.compressed) return;
+  // send the transaction
+  const txSignature2 = await sendAndConfirmTransaction(connection, tx, [payer], {
+    commitment: "confirmed",
+  });
+  console.log(explorerURL({ txSignature: txSignature2 }));
 
-        const treeAuthority = "5497iJjYQWkZGJKeUg4vLJ6Umc4cUzsQYrZytyGrgHoM";
-        const hasTargetAddress = asset.authorities.some(
-          authority => authority.address === treeAuthority,
-        );
+  // await connection
+  //   .getAssetsByOwner({
+  //     ownerAddress: payer.publicKey.toBase58(),
+  //   })
+  //   .then(res => {
+  //     console.log("Total assets returned:", res.total);
 
-        if (!hasTargetAddress) return;
+  //     // loop over each of the asset items in the collection
+  //     res.items?.map(asset => {
+  //       // only show compressed nft assets
+  //       if (!asset.compression.compressed) return;
 
-        // display a spacer between each of the assets
-        console.log("\n===============================================");
+  //       const treeAuthority = "5497iJjYQWkZGJKeUg4vLJ6Umc4cUzsQYrZytyGrgHoM";
+  //       const hasTargetAddress = asset.authorities.some(
+  //         authority => authority.address === treeAuthority,
+  //       );
 
-        // locally save the addresses for the demo
-        savePublicKeyToFile("assetIdTestAddress", new PublicKey(asset.id));
+  //       if (!hasTargetAddress) return;
 
-        console.log(asset);
+  //       // display a spacer between each of the assets
+  //       console.log("\n===============================================");
 
-        // extra useful info
-        console.log("assetId:", asset.id);
+  //       // locally save the addresses for the demo
+  //       savePublicKeyToFile("assetIdTestAddress", new PublicKey(asset.id));
 
-        // view the ownership info for the given asset
-        console.log("ownership:", asset.ownership);
+  //       console.log(asset);
 
-        // metadata json data (auto fetched thanks to the Metaplex Read API)
-        console.log("metadata:", asset.content.metadata);
+  //       // extra useful info
+  //       console.log("assetId:", asset.id);
 
-        // view the compression specific data for the given asset
-        console.log("compression:", asset.compression);
+  //       // view the ownership info for the given asset
+  //       console.log("ownership:", asset.ownership);
 
-        if (asset.compression.compressed) {
-          console.log("==> This NFT is compressed! <===");
-          console.log("\tleaf_id:", asset.compression.leaf_id);
-        } else console.log("==> NFT is NOT compressed! <===");
-      });
-    });
+  //       // metadata json data (auto fetched thanks to the Metaplex Read API)
+  //       console.log("metadata:", asset.content.metadata);
+
+  //       // view the compression specific data for the given asset
+  //       console.log("compression:", asset.compression);
+
+  //       if (asset.compression.compressed) {
+  //         console.log("==> This NFT is compressed! <===");
+  //         console.log("\tleaf_id:", asset.compression.leaf_id);
+  //       } else console.log("==> NFT is NOT compressed! <===");
+  //     });
+  //   });
 })();
