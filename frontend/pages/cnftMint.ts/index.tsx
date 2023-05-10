@@ -1,13 +1,14 @@
-import { Flex, useDisclosure, Button } from "@chakra-ui/react"
+import { Flex, useDisclosure, Button, VStack } from "@chakra-ui/react"
 import QrModal from "../../components/QrCodeCnftMint"
-
+import MintCnft from "../../components/MintCnft"
 const CnftMint = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   return (
-    <Flex justifyContent="center">
-      <Button onClick={onOpen}>Mint CNFT</Button>
+    <VStack justifyContent="center">
+      <Button onClick={onOpen}>Solana Pay Mint</Button>
+      <MintCnft />
       {isOpen && <QrModal onClose={onClose} />}
-    </Flex>
+    </VStack>
   )
 }
 

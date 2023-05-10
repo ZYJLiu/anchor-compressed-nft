@@ -36,16 +36,6 @@ const DisplayCnft = () => {
     setAssets(filteredAssets)
   }
 
-  const fetchJsonData = async (json_uri: string) => {
-    try {
-      const response = await fetch(json_uri)
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.error("Error fetching JSON data:", error)
-    }
-  }
-
   useEffect(() => {
     fetchAssets()
   }, [publicKey])
