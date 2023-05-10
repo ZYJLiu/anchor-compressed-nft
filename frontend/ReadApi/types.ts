@@ -34,9 +34,15 @@ export type ReadApiParamAssetSortBy = {
   sortDirection: ReadApiPropSortDirection
 }
 
+export type FileObject = {
+  uri: string
+  mime: string
+}
+
 export type ReadApiAssetContent = {
   json_uri: string
   metadata: Metadata["json"]
+  files: FileObject[]
 }
 
 export type ReadApiCompressionMetadata = {

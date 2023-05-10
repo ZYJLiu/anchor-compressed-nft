@@ -31,6 +31,8 @@ const DisplayCnft = () => {
         return hasTargetAddress
       }) || []
 
+    console.log(JSON.stringify(filteredAssets, null, 2))
+    console.log(filteredAssets[0].content.files[0].uri)
     setAssets(filteredAssets)
   }
 
@@ -76,7 +78,15 @@ const DisplayCnft = () => {
             <Text>Group Key: {asset.grouping[0].group_key}</Text>
             <Text>Group Value: {asset.grouping[0].group_value}</Text>
             <Text>Owner: {asset.ownership.owner}</Text>
-            {/* <Image src={} alt="" width={100} height={100} /> */}
+            <Text>
+              Image:
+              <Image
+                src={asset.content.files[0].uri}
+                alt=""
+                width={100}
+                height={100}
+              />
+            </Text>
           </Box>
         ))
       ) : (
