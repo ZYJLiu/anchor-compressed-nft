@@ -4,6 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { connection } from "../utils/setup"
 import { ReadApiAsset } from "../ReadApi/types"
 import Image from "next/image"
+import axios from "axios"
 
 // todo: filter by collection and fetch image
 const DisplayCnft = () => {
@@ -12,15 +13,25 @@ const DisplayCnft = () => {
 
   const fetchAssets = async () => {
     if (!publicKey) return
-
-    const res = await connection.getAssetsByOwner({
-      ownerAddress: publicKey.toBase58(),
+    const { data } = await axios.post(process.env.NEXT_PUBLIC_RPC_URL!, {
+      jsonrpc: "2.0",
+      id: "my-id",
+      method: "getAssetsByOwner",
+      params: {
+        ownerAddress: publicKey?.toBase58(),
+        page: 1,
+        limit: 10,
+      },
     })
+
+    const res = data.result
+    console.log("res", res)
 
     console.log("Total assets returned:", res.total)
 
     const filteredAssets: ReadApiAsset[] =
-      res.items?.filter((asset) => {
+      res.items?.filter((asset: ReadApiAsset) => {
+        console.log(asset)
         if (!asset.compression.compressed) return false
 
         const treeAuthority = "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"

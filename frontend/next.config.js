@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ["arweave.net"],
+    domains: ["cdn.helius.services", "arweave.net"],
   },
 }
 

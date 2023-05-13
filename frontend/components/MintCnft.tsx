@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react"
 import { PublicKey } from "@solana/web3.js"
-import { cNftProgram as program, nft } from "../utils/setup"
+import { cNftProgram as program } from "../utils/setup"
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
