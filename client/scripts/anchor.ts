@@ -155,9 +155,14 @@ let initBalance: number, balance: number;
     new PublicKey(currentRoot).toBase58() === new PublicKey(rpcRoot).toBase58(),
   );
 
-  const root = [...new PublicKey(assetProof.root.trim()).toBytes()];
-  const dataHash = [...new PublicKey(asset.compression.data_hash.trim()).toBytes()];
-  const creatorHash = [...new PublicKey(asset.compression.creator_hash.trim()).toBytes()];
+  const root = Array.from(new PublicKey(assetProof.root.trim()).toBytes());
+  console.log(root);
+  const dataHash = Array.from(new PublicKey(asset.compression.data_hash.trim()).toBytes());
+  const creatorHash = Array.from(new PublicKey(asset.compression.creator_hash.trim()).toBytes());
+
+  // const root = [...new PublicKey(assetProof.root.trim()).toBytes()];
+  // const dataHash = [...new PublicKey(asset.compression.data_hash.trim()).toBytes()];
+  // const creatorHash = [...new PublicKey(asset.compression.creator_hash.trim()).toBytes()];
   const nonce = asset.compression.leaf_id;
   const index = asset.compression.leaf_id;
 
@@ -187,7 +192,6 @@ let initBalance: number, balance: number;
   const tx2 = await program.methods
     .burnCompressedNft(root, dataHash, creatorHash, new BN(nonce), index)
     .accounts({
-      payer: payer.publicKey,
       leafOwner: payer.publicKey,
       leafDelegate: payer.publicKey,
       merkleTree: treeAddress,
@@ -201,11 +205,11 @@ let initBalance: number, balance: number;
     .transaction();
   // .rpc();
 
-  // send the transaction
-  const txSignature2 = await sendAndConfirmTransaction(connection, tx, [payer], {
-    commitment: "confirmed",
-  });
-  console.log(explorerURL({ txSignature: txSignature2 }));
+  // // send the transaction
+  // const txSignature2 = await sendAndConfirmTransaction(connection, tx, [payer], {
+  //   commitment: "confirmed",
+  // });
+  // console.log(explorerURL({ txSignature: txSignature2 }));
 
   // await connection
   //   .getAssetsByOwner({

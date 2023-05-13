@@ -132,11 +132,6 @@ export type AnchorCompressedNft = {
       name: "burnCompressedNft";
       accounts: [
         {
-          name: "payer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
           name: "leafOwner";
           isMut: true;
           isSigner: true;
@@ -420,11 +415,6 @@ export const IDL: AnchorCompressedNft = {
     {
       name: "burnCompressedNft",
       accounts: [
-        {
-          name: "payer",
-          isMut: true,
-          isSigner: true,
-        },
         {
           name: "leafOwner",
           isMut: true,

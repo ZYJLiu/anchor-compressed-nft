@@ -1,10 +1,10 @@
-import { Flex, Box, Text } from "@chakra-ui/react"
+import { Flex, Box, Text, Divider } from "@chakra-ui/react"
 import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { connection } from "../utils/setup"
 import { ReadApiAsset } from "../ReadApi/types"
 import Image from "next/image"
 import axios from "axios"
+import BurnCnft from "./BurnCnft"
 
 // todo: filter by collection and fetch image
 const DisplayCnft = () => {
@@ -20,18 +20,18 @@ const DisplayCnft = () => {
       params: {
         ownerAddress: publicKey?.toBase58(),
         page: 1,
-        limit: 10,
+        limit: 3,
       },
     })
 
     const res = data.result
-    console.log("res", res)
+    // console.log("res", res)
 
     console.log("Total assets returned:", res.total)
 
     const filteredAssets: ReadApiAsset[] =
       res.items?.filter((asset: ReadApiAsset) => {
-        console.log(asset)
+        // console.log(asset)
         if (!asset.compression.compressed) return false
 
         const treeAuthority = "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"
@@ -42,8 +42,7 @@ const DisplayCnft = () => {
         return hasTargetAddress
       }) || []
 
-    console.log(JSON.stringify(filteredAssets, null, 2))
-    console.log(filteredAssets[0].content.files[0].uri)
+    // console.log(JSON.stringify(filteredAssets, null, 2))
     setAssets(filteredAssets)
   }
 
@@ -56,6 +55,7 @@ const DisplayCnft = () => {
       {assets && assets.length > 0 ? (
         assets.map((asset, index) => (
           <Box key={index} borderWidth="1px" borderRadius="lg" p="4" m="2">
+            <BurnCnft asset={asset} />
             <Text fontWeight="bold">ID: {asset.id}</Text>
             <Text>Name: {asset?.content?.metadata?.name}</Text>
             <Text>Description: {asset?.content?.metadata?.description}</Text>
