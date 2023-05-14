@@ -116,7 +116,7 @@ let initBalance: number, balance: number;
   //   .rpc();
   // console.log("Your transaction signature", tx);
 
-  const assetId = new PublicKey("t5dV3UpBf565FNuGL2KSgkAi6no7S4PApVgEKUcqLdW");
+  const assetId = new PublicKey("H7yys5zUgFmRChcWKjRbF1AAYTFzuiZCUAvSh1SZCmVk");
   const asset = await connection.getAsset(assetId);
   const assetProof = await connection.getAssetProof(assetId);
   const treeAddress = new PublicKey(asset.compression.tree);
@@ -206,7 +206,7 @@ let initBalance: number, balance: number;
   // .rpc();
 
   // // send the transaction
-  // const txSignature2 = await sendAndConfirmTransaction(connection, tx, [payer], {
+  // const txSignature2 = await sendAndConfirmTransaction(connection, tx2, [payer], {
   //   commitment: "confirmed",
   // });
   // console.log(explorerURL({ txSignature: txSignature2 }));

@@ -31,10 +31,10 @@ export default function MintCnft() {
         payer: publicKey,
         pda: pda,
         merkleTree: new PublicKey(
-          "3qtDptmCQ8LUNBifHNWMLsQ8ueG4hwSU6deUj5b9CV8y"
+          "FWjK7ww2gmmZVjbwhc2VHeLkpUKKTxG2USfRsA48TSya"
         ),
         treeAuthority: new PublicKey(
-          "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"
+          "JBQw2zdKooAMxXMJpDXoYc9XxcrtMfqV11HE2ES7CBBJ"
         ),
         logWrapper: SPL_NOOP_PROGRAM_ID,
         bubblegumSigner: bubblegumSigner,
@@ -43,13 +43,13 @@ export default function MintCnft() {
         tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
 
         collectionMint: new PublicKey(
-          "6HSCi45SUfUCFX6vnyKCA5fwBEgnUZV2ALuUrPXRBg9q"
+          "9VWPFjB7uniVsZVgyf3a8HoCTCAJ8mRooKJLRXXSbDsg"
         ),
         collectionMetadata: new PublicKey(
-          "EcCsMe7MP6XCfFPcuMDB1jyVX3ibW8vtQaS6fQeZfAqB"
+          "8UqZLAftuaht1RGbBT47e6Jo9C2iFw5YY988SYLbRvms"
         ),
         editionAccount: new PublicKey(
-          "3LUjNV2MGBMbUqgtiyFpmQE1N6RbSkHaCHH5Jtf6b8Rb"
+          "G9SKThhp2PAyk4k3S8pt64yZoEEb9kKzFSuzSyeBAjpc"
         ),
       })
       .transaction()

@@ -5,6 +5,7 @@ import { ReadApiAsset } from "../ReadApi/types"
 import Image from "next/image"
 import axios from "axios"
 import BurnCnft from "./BurnCnft"
+import TransferCnft from "./TransferCnft"
 
 // todo: filter by collection and fetch image
 const DisplayCnft = () => {
@@ -20,7 +21,7 @@ const DisplayCnft = () => {
       params: {
         ownerAddress: publicKey?.toBase58(),
         page: 1,
-        limit: 3,
+        limit: 300,
       },
     })
 
@@ -34,7 +35,7 @@ const DisplayCnft = () => {
         // console.log(asset)
         if (!asset.compression.compressed) return false
 
-        const treeAuthority = "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"
+        const treeAuthority = "JBQw2zdKooAMxXMJpDXoYc9XxcrtMfqV11HE2ES7CBBJ"
         const hasTargetAddress = asset.authorities.some(
           (authority) => authority.address === treeAuthority
         )
@@ -55,7 +56,8 @@ const DisplayCnft = () => {
       {assets && assets.length > 0 ? (
         assets.map((asset, index) => (
           <Box key={index} borderWidth="1px" borderRadius="lg" p="4" m="2">
-            <BurnCnft asset={asset} />
+            <TransferCnft asset={asset} />
+            {/* <BurnCnft asset={asset} /> */}
             <Text fontWeight="bold">ID: {asset.id}</Text>
             <Text>Name: {asset?.content?.metadata?.name}</Text>
             <Text>Description: {asset?.content?.metadata?.description}</Text>
