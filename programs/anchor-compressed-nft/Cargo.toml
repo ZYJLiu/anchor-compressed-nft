@@ -18,7 +18,9 @@ default = []
 [dependencies]
 anchor-lang = { version = "0.26.0", features = ["init-if-needed"]}
 anchor-spl = {version = "0.26.0",features = ["metadata"]}
-mpl-token-metadata = { version = "1.8.3", features = [ "no-entrypoint" ] }
+mpl-token-metadata = { version = "=1.9.0", features = ["no-entrypoint"] }
 mpl-bubblegum = { version = "0.7.0", features=["cpi"] }
 spl-account-compression = { version="0.1.8", features = ["cpi"] }
-solana-program = "*"
+solana-program = "=1.14.13"
+winnow="=0.4.1"
+toml_datetime="=0.6.1"

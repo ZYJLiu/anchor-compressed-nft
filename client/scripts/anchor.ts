@@ -32,7 +32,6 @@ import {
 } from "@/utils/helpers";
 
 // import custom helpers to mint compressed NFTs
-import { createCollection, createTree, mintCompressedNFT } from "@/utils/compression";
 
 // local import of the connection wrapper, to help with using the ReadApi
 import { WrapperConnection } from "@/ReadApi/WrapperConnection";
@@ -84,7 +83,7 @@ let initBalance: number, balance: number;
 
   const provider = new AnchorProvider(connection, new NodeWallet(payer), {});
   setProvider(provider);
-  const programId = new PublicKey("AYorEHWdAA7SLzWgQfuv6kypdzriqCeG7GrGifa7c4Kp");
+  const programId = new PublicKey("AECLhMQ7QB11Ugxze54bQ535LL6V53RceEfPbBedzrSf");
   const program = new Program(IDL as Idl, programId) as unknown as Program<AnchorCompressedNft>;
 
   // pda tree delegate
@@ -95,26 +94,6 @@ let initBalance: number, balance: number;
     [Buffer.from("collection_cpi", "utf8")],
     BUBBLEGUM_PROGRAM_ID,
   );
-
-  // // Check Solana Explorer of a mint txSig for addresses
-  // const tx = await program.methods
-  //   .mintCompressedNft()
-  //   .accounts({
-  //     pda: pda,
-  //     merkleTree: new PublicKey("DKfVW5sjaUnC5Q5Fu6zLzPfkHn7xYXDzCu2EBScUfsLQ"),
-  //     treeAuthority: new PublicKey("DwpXS8BQUTyeSX6ftrh9HN8SRiBVkoQXGnro7KnQNR4s"),
-  //     logWrapper: SPL_NOOP_PROGRAM_ID,
-  //     bubblegumSigner: bubblegumSigner,
-  //     bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
-  //     compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
-  //     tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-
-  //     collectionMint: new PublicKey("9BK79Gs72jq3UyqNqSaBkG5iiiwy85NfQDVpNgD8pCRa"),
-  //     collectionMetadata: new PublicKey("Ga2GM2t6pjMGUefrV8FyRALg1WdyHKqN6UoUfWKQcGiH"),
-  //     editionAccount: new PublicKey("D72ArxhvDMFvXpyyrdJQLbNX3uiPugWWBT6q6BPUspHn"),
-  //   })
-  //   .rpc();
-  // console.log("Your transaction signature", tx);
 
   const assetId = new PublicKey("H7yys5zUgFmRChcWKjRbF1AAYTFzuiZCUAvSh1SZCmVk");
   const asset = await connection.getAsset(assetId);

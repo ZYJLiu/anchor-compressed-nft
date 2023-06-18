@@ -16,7 +16,7 @@ use mpl_bubblegum::{
 use solana_program::pubkey::Pubkey;
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-declare_id!("AYorEHWdAA7SLzWgQfuv6kypdzriqCeG7GrGifa7c4Kp");
+declare_id!("AECLhMQ7QB11Ugxze54bQ535LL6V53RceEfPbBedzrSf");
 
 pub const SEED: &str = "AUTH";
 

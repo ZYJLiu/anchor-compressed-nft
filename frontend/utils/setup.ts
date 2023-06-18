@@ -26,7 +26,7 @@ const provider = new AnchorProvider(connection, MockWallet, {})
 setProvider(provider)
 
 const AnchorCompressedNftId = new PublicKey(
-  "AYorEHWdAA7SLzWgQfuv6kypdzriqCeG7GrGifa7c4Kp"
+  "AECLhMQ7QB11Ugxze54bQ535LL6V53RceEfPbBedzrSf"
 )
 
 export const cNftProgram = new Program(
