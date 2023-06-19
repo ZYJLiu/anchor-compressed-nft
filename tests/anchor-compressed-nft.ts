@@ -16,18 +16,8 @@ import {
   SPL_NOOP_PROGRAM_ID,
   ValidDepthSizePair,
   createAllocTreeIx,
-  createVerifyLeafIx,
 } from "@solana/spl-account-compression"
-import {
-  PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
-  computeCompressedNFTHash,
-  getLeafAssetId,
-  TokenProgramVersion,
-  TokenStandard,
-  MetadataArgs,
-  Collection,
-  Creator,
-} from "@metaplex-foundation/mpl-bubblegum"
+import { PROGRAM_ID as BUBBLEGUM_PROGRAM_ID } from "@metaplex-foundation/mpl-bubblegum"
 import {
   Metaplex,
   keypairIdentity,
@@ -70,8 +60,8 @@ describe("anchor-compressed-nft", () => {
   )
 
   const maxDepthSizePair: ValidDepthSizePair = {
-    maxDepth: 3,
-    maxBufferSize: 8,
+    maxDepth: 14,
+    maxBufferSize: 64,
   }
   const canopyDepth = maxDepthSizePair.maxDepth - 5
 

@@ -1,16 +1,21 @@
-import { Flex, Box, Text, Divider } from "@chakra-ui/react"
+import { Flex, Box, Text } from "@chakra-ui/react"
 import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { ReadApiAsset } from "../ReadApi/types"
 import Image from "next/image"
 import axios from "axios"
 import BurnCnft from "./BurnCnft"
 import TransferCnft from "./TransferCnft"
+import { collectionNft } from "../utils/setup"
+
+type Group = {
+  group_key: string
+  group_value: string
+}
 
 // todo: filter by collection and fetch image
 const DisplayCnft = () => {
   const { publicKey } = useWallet()
-  const [assets, setAssets] = useState<ReadApiAsset[]>([])
+  const [assets, setAssets] = useState<any[]>([])
 
   const fetchAssets = async () => {
     if (!publicKey) return
@@ -26,18 +31,17 @@ const DisplayCnft = () => {
     })
 
     const res = data.result
-    // console.log("res", res)
 
     console.log("Total assets returned:", res.total)
 
-    const filteredAssets: ReadApiAsset[] =
-      res.items?.filter((asset: ReadApiAsset) => {
-        // console.log(asset)
+    const filteredAssets =
+      res.items?.filter((asset: any) => {
         if (!asset.compression.compressed) return false
 
-        const treeAuthority = "JBQw2zdKooAMxXMJpDXoYc9XxcrtMfqV11HE2ES7CBBJ"
-        const hasTargetAddress = asset.authorities.some(
-          (authority) => authority.address === treeAuthority
+        // console.log(JSON.stringify(asset, null, 2))
+        const hasTargetAddress = asset.grouping.some(
+          (group: Group) =>
+            group.group_value === collectionNft.mintAddress.toBase58()
         )
 
         return hasTargetAddress
@@ -61,7 +65,7 @@ const DisplayCnft = () => {
             <Text fontWeight="bold">ID: {asset.id}</Text>
             <Text>Name: {asset?.content?.metadata?.name}</Text>
             <Text>Description: {asset?.content?.metadata?.description}</Text>
-            {asset.authorities.map((authority, idx) => (
+            {asset.authorities.map((authority: any, idx: any) => (
               <Text key={idx}>
                 Authority {idx + 1}: {authority.address}
               </Text>

@@ -1,13 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js"
-import { getAssociatedTokenAddress } from "@solana/spl-token"
-import { Metaplex } from "@metaplex-foundation/js"
-import { connection, cNftProgram as program, nft } from "../../utils/setup"
+import { PublicKey, Transaction } from "@solana/web3.js"
+import { connection, cNftProgram as program, collectionNft, treeAddress } from "../../utils/setup"
 
 import {
-  ConcurrentMerkleTreeAccount,
-  MerkleTree,
-  MerkleTreeProof,
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
 } from "@solana/spl-account-compression"
@@ -81,6 +76,13 @@ async function postImpl(
     program.programId
   )
 
+  // tree authority
+  const [treeAuthority] = PublicKey.findProgramAddressSync(
+    [treeAddress.toBuffer()],
+    BUBBLEGUM_PROGRAM_ID
+  )
+
+
   // bubblegum signer
   const [bubblegumSigner] = PublicKey.findProgramAddressSync(
     [Buffer.from("collection_cpi", "utf8")],
@@ -92,25 +94,17 @@ async function postImpl(
     .accounts({
       payer: account,
       pda: pda,
-      merkleTree: new PublicKey("3qtDptmCQ8LUNBifHNWMLsQ8ueG4hwSU6deUj5b9CV8y"),
-      treeAuthority: new PublicKey(
-        "3aU3PXWtPDAZUvaKNAo8hH4gwjQKcDQhh323K2gFdh1x"
-      ),
+      merkleTree: treeAddress,
+      treeAuthority: treeAuthority,
       logWrapper: SPL_NOOP_PROGRAM_ID,
       bubblegumSigner: bubblegumSigner,
       bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
       compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
       tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
 
-      collectionMint: new PublicKey(
-        "6HSCi45SUfUCFX6vnyKCA5fwBEgnUZV2ALuUrPXRBg9q"
-      ),
-      collectionMetadata: new PublicKey(
-        "EcCsMe7MP6XCfFPcuMDB1jyVX3ibW8vtQaS6fQeZfAqB"
-      ),
-      editionAccount: new PublicKey(
-        "3LUjNV2MGBMbUqgtiyFpmQE1N6RbSkHaCHH5Jtf6b8Rb"
-      ),
+      collectionMint: collectionNft.mintAddress,
+      collectionMetadata: collectionNft.metadataAddress,
+      editionAccount: collectionNft.masterEditionAddress,
     })
     .instruction()
 
