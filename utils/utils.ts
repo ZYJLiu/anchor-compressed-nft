@@ -1,5 +1,8 @@
 import { getLeafAssetId } from "@metaplex-foundation/mpl-bubblegum"
-import { SPL_NOOP_PROGRAM_ID, deserializeChangeLogEventV1 } from "@solana/spl-account-compression"
+import {
+  SPL_NOOP_PROGRAM_ID,
+  deserializeChangeLogEventV1,
+} from "@solana/spl-account-compression"
 import { Connection, PublicKey } from "@solana/web3.js"
 import BN from "bn.js"
 import base58 from "bs58"
@@ -17,8 +20,6 @@ export async function extractAssetId(
   const txInfo = await connection.getTransaction(txSignature, {
     maxSupportedTransactionVersion: 0,
   })
-
-  console.log("txInfo:", JSON.stringify(txInfo, null, 2))
 
   // Function to check the program Id of an instruction
   const isProgramId = (instruction, programId) =>
